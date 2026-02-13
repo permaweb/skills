@@ -1,5 +1,6 @@
 import * as fs from 'fs';
 import * as path from 'path';
+import * as crypto from 'crypto';
 import * as readline from 'readline';
 import { NodeARx } from '@permaweb/arx/node';
 import { ArweaveSigner, ARIO, ANT, AOProcess, ARIO_MAINNET_PROCESS_ID, ARIO_TESTNET_PROCESS_ID } from '@ar.io/sdk/node';
@@ -243,6 +244,7 @@ Commands:
   upload-site <dir> [--index file]    Upload a directory as a static site
   attach <txId> <name>                Attach an ArNS name to a transaction
   query                               Query transactions from Arweave GraphQL
+  generate-wallet [path]              Generate a new Arweave wallet (JWK)
 
 Options:
   --wallet <path>       Path to Arweave wallet keyfile (JWK json)
@@ -278,6 +280,8 @@ Examples:
   arweave-skill query --tag App-Name:MyApp --tag Type:post --block-min 1000000
   arweave-skill query --ids <txId1>,<txId2>,<txId3>
   arweave-skill query --owner <address> --graphql-endpoint https://arweave.net/graphql
+  arweave-skill generate-wallet
+  arweave-skill generate-wallet ./my-wallet.json
 `);
 }
 
@@ -626,6 +630,61 @@ async function handleAttach(args: ParsedArgs): Promise<void> {
   }
 }
 
+function toB64Url(buf: Uint8Array): string {
+  return Buffer.from(buf)
+    .toString('base64')
+    .replace(/\+/g, '-')
+    .replace(/\//g, '_')
+    .replace(/=+$/, '');
+}
+
+async function handleGenerateWallet(args: ParsedArgs): Promise<void> {
+  const outPath = args.target
+    ? path.resolve(args.target)
+    : path.resolve('wallet.json');
+
+  // Safety: don't overwrite an existing wallet unless --yes
+  if (fs.existsSync(outPath) && !args.yes) {
+    const confirm = await promptForInput(
+      `File already exists: ${outPath}\nOverwrite? (y/N): `
+    );
+    if (confirm.toLowerCase() !== 'y' && confirm.toLowerCase() !== 'yes') {
+      console.log('Aborted.');
+      process.exit(0);
+    }
+  }
+
+  console.log('Generating Arweave wallet (RSA-4096)...');
+
+  const keyPair = await crypto.subtle.generateKey(
+    {
+      name: 'RSA-PSS',
+      modulusLength: 4096,
+      publicExponent: new Uint8Array([0x01, 0x00, 0x01]),
+      hash: 'SHA-256',
+    },
+    true,
+    ['sign', 'verify']
+  );
+
+  const jwk = await crypto.subtle.exportKey('jwk', keyPair.privateKey!);
+
+  // Derive address: SHA-256 of the public modulus (n)
+  const nBytes = Buffer.from(jwk.n!, 'base64');
+  const addressHash = await crypto.subtle.digest('SHA-256', nBytes);
+  const address = toB64Url(new Uint8Array(addressHash));
+
+  fs.writeFileSync(outPath, JSON.stringify(jwk, null, 2));
+
+  console.log('');
+  console.log('Wallet generated successfully!');
+  console.log(`  File: ${outPath}`);
+  console.log(`  Address: ${address}`);
+  console.log('');
+  console.log('IMPORTANT: Back up this file securely. Anyone with this file controls the wallet.');
+  console.log('NOTE: This is a new wallet with zero balance. Fund it before uploading.');
+}
+
 async function handleQuery(args: ParsedArgs): Promise<void> {
   // Validate that at least one filter is provided
   const hasFilter = 
@@ -747,6 +806,10 @@ async function main(): Promise<void> {
 
       case 'query':
         await handleQuery(args);
+        break;
+
+      case 'generate-wallet':
+        await handleGenerateWallet(args);
         break;
 
       default:
