@@ -36,36 +36,9 @@ Upload files and websites to permanent storage on Arweave, and manage ArNS (Arwe
 node skills/arweave/index.mjs upload "<file>" --wallet "<path/to/wallet.json>"
 ```
 
-### Turbo (Irys) Upload Support
+### Turbo Upload Support
 
-This skill supports **Turbo/Irys bundling** for faster, cheaper uploads. Turbo is used by default for uploads.
-
-**Benefits of Turbo:**
-- **Faster**: Uploads complete in seconds vs. minutes for direct Arweave
-- **Cheaper**: Often significantly lower fees, especially for small files
-- **Free tier**: Small uploads may be free
-
-**Options:**
-
-- `--turbo` - Use Turbo/Irys for upload (default: enabled)
-- `--no-turbo` - Use direct Arweave transactions instead of Turbo
-- `--turbo-node <url>` - Use a custom Irys node URL (optional)
-
-```sh
-# Upload with Turbo (default - faster and cheaper)
-node skills/arweave/index.mjs upload "file.json" --wallet "wallet.json"
-
-# Explicitly use Turbo
-node skills/arweave/index.mjs upload "file.json" --turbo --wallet "wallet.json"
-
-# Use direct Arweave instead of Turbo
-node skills/arweave/index.mjs upload "file.json" --no-turbo --wallet "wallet.json"
-
-# Use custom Irys node
-node skills/arweave/index.mjs upload "file.json" --turbo-node "https://custom-irys.node.io" --wallet "wallet.json"
-```
-
-**Note**: Turbo requires an Irys node or API key. The default uses AR.IO's Turbo service. If Turbo fails, the upload will automatically fall back to direct Arweave.
+This skill supports **Turbo bundling** for faster, cheaper uploads. Turbo is used by default for uploads.
 
 ### Upload a Website/Directory
 
