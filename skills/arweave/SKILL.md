@@ -19,6 +19,7 @@ Upload files and websites to permanent storage on Arweave, and manage ArNS (Arwe
 | "use arweave to upload `<dir>`" | `upload-site` |
 | "use arweave to attach `<txId>` to `<name>`" | `attach` |
 | "use arweave to query transactions" | `query` |
+| "use arweave to generate a wallet" | `generate-wallet` |
 
 ## Wallet Handling
 
@@ -126,6 +127,20 @@ node skills/arweave/index.mjs attach "<txId>" "<name>" --network testnet --walle
 # Use specific ARIO process ID (overrides --network)
 node skills/arweave/index.mjs attach "<txId>" "<name>" --ario-process "<processId>" --wallet "..." --yes
 ```
+
+### Generate a New Wallet
+
+```sh
+node skills/arweave/index.mjs generate-wallet
+node skills/arweave/index.mjs generate-wallet "./my-wallet.json"
+```
+
+- Generates an RSA-4096 Arweave wallet (JWK) using Node.js built-in `crypto.subtle`
+- Defaults to `./wallet.json` if no path given
+- Prompts before overwriting an existing file (use `--yes` to skip)
+- Prints the wallet address after generation
+- **No network calls needed** - purely local key generation
+- The new wallet starts with zero balance; fund it before uploading
 
 ## Output Handling
 
@@ -258,6 +273,11 @@ node skills/arweave/index.mjs attach "<txId>" "hello_rakis" --network testnet --
 
 # Attach using specific ARIO process
 node skills/arweave/index.mjs attach "<txId>" "hello_rakis" --ario-process testnet --wallet "/path/to/wallet.json" --yes
+
+# Generate a new wallet
+node skills/arweave/index.mjs generate-wallet
+node skills/arweave/index.mjs generate-wallet "./my-wallet.json"
+node skills/arweave/index.mjs generate-wallet "./my-wallet.json" --yes
 ```
 
 ## Cost Estimation
