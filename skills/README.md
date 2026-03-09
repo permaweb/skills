@@ -13,6 +13,7 @@ A collection of Permaweb CLI skills for [Claude Code](https://claude.ai/code) an
 | `arweave` | Upload files/sites to Arweave + manage ArNS records | [skills/arweave/SKILL.md](skills/arweave/SKILL.md) |
 | `monitor` | AO Task Monitor client (summaries, alerts, logs) | [skills/monitor/SKILL.md](skills/monitor/SKILL.md) |
 | `aoconnect` | Interact with AO processes - spawn, message, read results, monitor | [skills/aoconnect/SKILL.md](skills/aoconnect/SKILL.md) |
+| `apus` | AI inference via APUS on AO Network (chat, streaming, TEE attestation) | [skills/apus/SKILL.md](skills/apus/SKILL.md) |
 
 ## Installation
 
@@ -27,6 +28,9 @@ npx skills add https://github.com/permaweb/skills --skill monitor
 
 # Install the AO Connect skill
 npx skills add https://github.com/permaweb/skills --skill aoconnect
+
+# Install the APUS skill
+npx skills add https://github.com/permaweb/skills --skill apus
 ```
 
 This adds the skill to your project's `.claude/skills/` or `.opencode/skills/` directory.
@@ -71,6 +75,19 @@ use aoconnect to dryrun --message=<id>
 Claude Code will prompt for your wallet path if not configured.
 
 **Full docs:** [skills/aoconnect/SKILL.md](skills/aoconnect/SKILL.md)
+
+### APUS AI Inference
+
+```
+use apus to chat "What is AO?"
+use apus to stream "Explain blockchain"
+use apus to verify <attestation>
+use apus to check health
+```
+
+Requires `openai` SDK (`pip install openai` or `npm install openai`).
+
+**Full docs:** [skills/apus/SKILL.md](skills/apus/SKILL.md)
 
 ## Manual CLI Usage
 
@@ -153,6 +170,7 @@ node skills/aoconnect/index.mjs monitor \
 - Arweave wallet (JWK format) for `arweave` and `aoconnect` skills
 - `AO_MONITOR_KEY` env var for `monitor` skill
 - `@permaweb/aoconnect` package for `aoconnect` skill
+- `openai` SDK (Python or Node.js) for `apus` skill
 
 ## Development
 
